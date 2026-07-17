@@ -1,0 +1,27 @@
+<a 
+style="cursor: pointer; border-radius: 10px;" 
+class="list-group-item list-group-item-action" 
+routerLinkActive="active"
+[routerLink]="[recipe().name.replace(/\s+/g, '')]"
+>
+        <div class="d-flex justify-content-between align-items-center">
+
+          <div>
+            <h5 class="mb-1">
+              {{ recipe().name }}
+            </h5>
+
+            <p class="mb-0 text-muted">
+              {{ recipe().description }}
+            </p>
+          </div>
+
+          <img
+            [src]="recipe().imagePath"
+            alt=""
+            class="img-fluid rounded"
+            style="max-height: 50px;"
+          >
+
+        </div>
+      </a>

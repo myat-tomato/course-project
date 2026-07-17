@@ -1,0 +1,82 @@
+<div class="container">
+  <div class="row">
+    <div class="col-12">
+      <!-- 1. FORM BINDING WITH NG-SUBMIT -->
+      <form [formGroup]="recipeForm" (ngSubmit)="onSubmit()">
+        
+        <!-- 2. ACTION CONTROLS ROW -->
+        <div class="row mb-4">
+          <div class="col-12">
+            <!-- Space items cleanly using Bootstrap 5 margin-end utility -->
+            <button type="submit" class="btn btn-success me-2" [disabled]="!recipeForm.valid">Save</button>
+            <button type="button" class="btn btn-danger" (click)="onCancel()">Cancel</button>
+          </div>
+        </div>
+
+        <!-- 3. MAIN FIELD ENTRY BLOCKS (Grid Layout System) -->
+        <div class="row g-3">
+          
+          <!-- Name Input Field -->
+          <div class="col-12">
+            <!-- BS5 dropped .form-group; use standard form-label and form-control instead -->
+            <label for="name" class="form-label fw-bold">Name</label>
+            <input type="text" id="name" class="form-control" formControlName="name">
+          </div>
+
+          <!-- Image URL Input Field -->
+          <div class="col-12">
+            <label for="imagePath" class="form-label fw-bold">Image URL</label>
+            <input type="text" id="imagePath" class="form-control" formControlName="imagePath" #imgInput>
+          </div>
+
+          <!-- Live Reactive Image Preview Layer -->
+          <!-- BS5 class 'img-fluid' stretches to responsive parent columns perfectly -->
+          <div class="col-12 my-3 text-center">
+            @if (imgInput.value) {
+              <img [src]="imgInput.value" class="img-fluid rounded border shadow-sm max-preview" alt="Recipe Preview">
+            }
+          </div>
+
+          <!-- Description Text Area Field -->
+          <div class="col-12">
+            <label for="description" class="form-label fw-bold">Description</label>
+            <!-- BS5 row sizing attribute is plural 'rows' -->
+            <textarea id="description" class="form-control" formControlName="description" rows="6"></textarea>
+          </div>
+
+          <!-- 4. DYNAMIC SUB-ARRAY INGREDIENTS LAYOUT SECTION -->
+          <div class="col-12 mt-4" formArrayName="ingredients">
+            <h5 class="mb-3">Ingredients</h5>
+            
+            <!-- Loop through the nested items cleanly using modern loop syntax -->
+            @for (ingredientGroup of ingredients.controls; track $index) {
+              <!-- Use unique formGroupName index to wrap nested property names -->
+              <div class="row g-2 align-items-center mb-2" [formGroupName]="$index">
+                
+                <!-- Ingredient Name Input Field -->
+                <div class="col-7">
+                  <input type="text" class="form-control" formControlName="name" placeholder="Ingredient Name">
+                </div>
+                
+                <!-- Ingredient Amount Input Field -->
+                <div class="col-3">
+                  <input type="number" class="form-control" formControlName="amount" placeholder="Qty">
+                </div>
+                
+                <!-- Individual Dynamic Array Delete Action Button Container -->
+                <div class="col-2 text-end">
+                  <button type="button" class="btn btn-outline-danger w-100" (click)="onDeleteIngredient($index)">
+                    &times;
+                  </button>
+                </div>
+
+              </div>
+            }
+            <button class="btn btn-success" (click)="onAddIngredient()">Add Ingredient</button>
+          </div>
+
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

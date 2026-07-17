@@ -1,1 +1,22 @@
-/* You can add global styles to this file, and also import other style files */
+/* =========================================================================
+   1. GLOBAL FONT INJECTION LAYER (Always place @import at the absolute top)
+   ========================================================================= */
+@import url('https://fonts.googleapis.com/css2?family=Geist+Pixel&display=swap');
+
+/* =========================================================================
+   2. GLOBAL BODY BINDING APPLICATION
+   ========================================================================= */
+html, body {
+  margin: 0;
+  padding: 0;
+  
+  font-family: 'Geist Pixel', monospace, sans-serif;
+  
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Enforce font inheritance for all form controls and layout button components */
+input, select, textarea, button {
+  font-family: inherit;
+}

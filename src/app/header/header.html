@@ -1,0 +1,53 @@
+<!-- 1. Change to navbar-expand to prevent responsive breaking layouts -->
+<nav class="navbar navbar-expand bg-body-tertiary">
+  <div class="container-fluid">
+
+    <a class="navbar-brand" routerLink="/recipes">Recipe Book</a>
+    <!-- 2. Replaced the messy nested d-flex div with a standard bootstrap container alignment -->
+    <ul class="navbar-nav me-auto">
+      <li class="nav-item">
+        <a routerLinkActive="active" class="nav-link" routerLink="/recipes">Recipes</a>
+      </li>
+      <li class="nav-item">
+        <a routerLinkActive="active" class="nav-link" routerLink="/shopping-list">Shopping List</a>
+      </li>
+    </ul>
+
+    <ul class="navbar-nav ms-auto">
+
+
+      <!-- 3. Added dropdown-menu-end behavior layout adjustments -->
+      <li appDropdown class="nav-item dropdown position-relative">
+        <button type="button" class="btn nav-link dropdown-toggle border-0 bg-transparent" /* (click)="toggleDropdown()"
+          */>
+          Manage
+        </button>
+
+        <!-- 4. Added position-absolute to freeze item calculations inside the box view boundaries -->
+        <ul class="dropdown-menu dropdown-menu-end position-absolute">
+          <li><a class="dropdown-item">Save Data</a></li>
+          <li><a class="dropdown-item">Fetch Data</a></li>
+        </ul>
+      </li>
+
+      <!-- to make the below codes work
+       (which is the same dropdown like above),
+      we need to use bootstrap.bundle.min.js
+      not the current bootstrap.min.js
+      -->
+      <!-- <li class="nav-item dropdown"> -->
+        <!-- Just add data-bs-toggle="dropdown" -->
+        <!-- <button type="button" class="btn nav-link dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+          Manage
+        </button>
+
+        <ul class="dropdown-menu dropdown-menu-end">
+          <li><a class="dropdown-item" href="#">Save Data</a></li>
+          <li><a class="dropdown-item" href="#">Fetch Data</a></li>
+        </ul>
+      </li> -->
+
+    </ul>
+
+  </div>
+</nav>

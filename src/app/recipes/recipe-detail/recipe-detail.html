@@ -1,0 +1,45 @@
+<div class="row">
+    <div class="col-12">
+        <img [src]="recipe()?.imagePath" alt="{{recipe()?.name}}" class="img-fluid">
+    </div>
+</div>
+<div class="row">
+    <div class="col-12">
+        <h1>{{recipe()?.name}}</h1>
+    </div>
+</div>
+<div class="row">
+    <div class="col-12">
+        <div class="btn-group dropdown" appDropdown>
+            <button class="btn btn-primary dropdown-toggle" type="button">
+                Manage Recipe <span class="caret"></span>
+            </button>
+            <!-- Added style="top: 100%;" to completely push the box view boundaries down -->
+            <ul class="dropdown-menu position-absolute start-0 m-0">
+                <li><a class="dropdown-item" (click)="addToShoppingList()">To Shopping List</a></li>
+                <li><a class="dropdown-item" [routerLink]='["edit"]'>Edit Recipe</a></li>
+                <li><a class="dropdown-item" (click)="onDeleteRecipe()">Delete Recipe</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-12 fs-5 text-uppercase">
+        Description
+    </div>
+    <div>
+        {{recipe()?.description}}
+    </div>
+</div>
+<div class="row">
+    <div class="col-12 fs-5 text-uppercase">
+        Ingredients
+    </div>
+    <div class="list-group col-12">
+        @for (ingredient of recipe()?.ingredients; track $index) {
+        <div class="list-group-item">
+            {{ingredient.name}} ({{ingredient.amount}})
+        </div>
+        }
+    </div>
+</div>
