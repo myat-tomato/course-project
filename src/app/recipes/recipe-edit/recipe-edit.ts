@@ -13,13 +13,13 @@ import { Router, ActivatedRoute } from '@angular/router';
     imports: [ReactiveFormsModule]
 })
 export class RecipeEdit {
-    // 💡 Signal input from route parameters
+    //  Signal input from route parameters
     name = input.required<string>();
     recipeService = inject(RecipeService);
     router = inject(Router);
     route = inject(ActivatedRoute)
 
-    // 💡 FIX 1: Turn editRecipe into a computed signal so it waits safely for the input to resolve
+    //  FIX 1: Turn editRecipe into a computed signal so it waits safely for the input to resolve
     editRecipe = computed(() => {
         return this.recipeService.findRecipe(this.name());
     });
@@ -45,7 +45,7 @@ export class RecipeEdit {
     }
 
     constructor() {
-        // 💡 FIX 2: Create an effect to track when 'editRecipe' resolves, then populate the form dynamically!
+        //  FIX 2: Create an effect to track when 'editRecipe' resolves, then populate the form dynamically!
         effect(() => {
             const recipe = this.editRecipe();
 

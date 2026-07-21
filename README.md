@@ -1,59 +1,247 @@
-# CourseProject
+# Recipe Book — Angular 22 Course Project
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 22.0.5.
+A modern rewrite of the Angular course **Recipe Book** project using standalone components, signals, functional routing APIs, reactive forms, template-driven forms, and Firebase Realtime Database.
 
-## Development server
+## Main Features
 
-To start a local development server, run:
+- View, create, edit, and delete recipes
+- Add recipe ingredients to a shopping list
+- Add, edit, and delete shopping-list items
+- Save recipes to Firebase and fetch them again
+- Navigate through nested recipe routes
+- Open dropdown menus through a custom Angular directive
+
+## Running the Project
+
+This upload contains the `src` folder. Put it inside an Angular project, then run:
 
 ```bash
+npm install
 ng serve
 ```
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+Open `http://localhost:4200`.
 
-## Code scaffolding
+Bootstrap is used for styling, so the project should also include Bootstrap in its global styles or Angular configuration.
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+## Project Structure
 
-```bash
-ng generate component component-name
+```text
+src/
+├── main.ts                         # Starts the standalone Angular app
+├── app/
+│   ├── app.config.ts               # Global providers
+│   ├── app.routes.ts               # Route definitions
+│   ├── header/                     # Navigation and Firebase actions
+│   ├── recipes/
+│   │   ├── recipe-list/            # Recipe list and list items
+│   │   ├── recipe-detail/          # Selected recipe details
+│   │   ├── recipe-edit/            # Create/edit reactive form
+│   │   ├── recipe.service.ts       # Recipe state and CRUD logic
+│   │   └── recipes-resolver.service.ts
+│   ├── shopping-list/
+│   │   ├── shopping-edit/          # Template-driven form
+│   │   └── shopping-list.service.ts
+│   └── shared/
+│       ├── data-storage.service.ts  # Firebase HTTP requests
+│       ├── dropdown.directive.ts    # Custom dropdown behavior
+│       └── ingredient.ts
 ```
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+## Angular Application Skeleton
 
-```bash
-ng generate --help
+### 1. Standalone Bootstrap
+
+`main.ts` starts the root component without an `AppModule`:
+
+```ts
+bootstrapApplication(App, appConfig);
 ```
 
-## Building
+Each component imports the components, directives, router features, or form modules that its own template uses.
 
-To build the project run:
+### 2. Global Providers
 
-```bash
-ng build
+`app.config.ts` registers application-wide Angular features:
+
+```ts
+provideRouter(routes, withComponentInputBinding())
 ```
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
+- `provideRouter(routes)` enables routing.
+- `withComponentInputBinding()` sends route parameters directly into matching component inputs.
+- `provideBrowserGlobalErrorListeners()` connects browser errors to Angular error handling.
 
-## Running unit tests
+HTTP also needs to be registered here:
 
-To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
+```ts
+import { provideHttpClient } from '@angular/common/http';
 
-```bash
-ng test
+providers: [
+  provideBrowserGlobalErrorListeners(),
+  provideRouter(routes, withComponentInputBinding()),
+  provideHttpClient()
+]
 ```
 
-## Running end-to-end tests
+### 3. Routing
 
-For end-to-end (e2e) testing, run:
+The application uses:
 
-```bash
-ng e2e
+- A redirect from `/` to `/recipes`
+- Child routes rendered inside the recipes `<router-outlet>`
+- A dynamic `:name` route parameter
+- Relative navigation
+- A route resolver
+
+```text
+/recipes             Recipe start screen
+/recipes/new         Create a recipe
+/recipes/:name       Recipe details
+/recipes/:name/edit  Edit a recipe
+/shopping-list       Shopping list
 ```
 
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
+The resolver fetches recipes before the recipes page opens when the service has no data. Angular waits for the returned array or `Observable` before activating the route.
 
-## Additional Resources
+### 4. Dependency Injection and Services
 
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+Services contain shared state and business logic. Components access them with `inject()`:
+
+```ts
+recipeService = inject(RecipeService);
+```
+
+`RecipeService` manages recipes, `ShoppingListService` manages ingredients, and `DataStorageService` communicates with Firebase.
+
+A root service should use:
+
+```ts
+@Injectable({ providedIn: 'root' })
+export class ShoppingListService {}
+```
+
+The current `@Service()` decorator in `shopping-list.service.ts` should be replaced with `@Injectable(...)`.
+
+## Signals and Reactive State
+
+Signals are the main local and shared-state mechanism in this project.
+
+```ts
+private recipesList = signal<Recipe[]>([]);
+recipes = this.recipesList.asReadonly();
+```
+
+- `signal(value)` creates writable reactive state.
+- Reading uses `recipes()`.
+- `set(value)` replaces the value.
+- `update(current => newValue)` calculates the next value.
+- `asReadonly()` lets components read state without changing it directly.
+- `computed()` derives a value from other signals.
+- `effect()` runs side-effect code whenever the signals it reads change.
+
+Examples include finding the selected recipe, detecting shopping-list edit mode, filling forms, and controlling dropdown visibility.
+
+## Component Inputs and Template Binding
+
+Modern signal inputs are used instead of the older `@Input()` style:
+
+```ts
+recipe = input.required<Recipe>();
+```
+
+Templates read signal inputs with `recipe()`.
+
+The project also demonstrates:
+
+```html
+{{ recipe().name }}              <!-- Interpolation -->
+[src]="recipe().imagePath"       <!-- Property binding -->
+(click)="onDeleteRecipe()"       <!-- Event binding -->
+[(ngModel)]="name"              <!-- Two-way binding -->
+```
+
+Modern template control flow is used:
+
+```html
+@if (editMode()) { ... }
+@for (item of items(); track $index) { ... }
+```
+
+Because `RecipeEdit` handles both `/new` and `/:name/edit`, its route input should be optional rather than required:
+
+```ts
+name = input<string | undefined>();
+```
+
+## Forms
+
+### Reactive Form — Recipe Editor
+
+`RecipeEdit` builds the form structure in TypeScript with:
+
+- `FormGroup` for the complete recipe
+- `FormControl` for normal fields
+- `FormArray` for a dynamic ingredient list
+- `Validators.required` and `Validators.min(1)`
+- `patchValue()` when loading an existing recipe
+
+The template connects through `[formGroup]`, `formControlName`, `formArrayName`, and `[formGroupName]`.
+
+The **Add Ingredient** button should use `type="button"` so it does not accidentally submit the form.
+
+### Template-Driven Form — Shopping List
+
+`ShoppingEdit` uses `FormsModule`, `NgForm`, `[(ngModel)]`, HTML validation attributes, and `(ngSubmit)`.
+
+This form style is convenient for smaller forms, while reactive forms are better for larger or dynamic structures.
+
+## HTTP and Observables
+
+`HttpClient` methods return RxJS `Observable` values.
+
+```ts
+this.http.get<Recipe[]>(url).pipe(
+  map(...),
+  tap(...)
+);
+```
+
+An `Observable` represents data that may arrive later. The HTTP request starts when Angular subscribes to it.
+
+- `get()` fetches recipes.
+- `put()` replaces the recipes stored at Firebase's `/recipes.json` endpoint.
+- `pipe()` attaches RxJS operators.
+- `map()` transforms the received data.
+- `tap()` performs a side effect without replacing the emitted value; here it updates `RecipeService`.
+- `subscribe()` executes the request when called manually.
+
+The resolver can return the fetch `Observable` directly, so the router subscribes and waits automatically.
+
+## Custom Dropdown Directive
+
+`DropdownDirective` adds reusable behavior to any element with `appDropdown`.
+
+- `@HostListener('document:click')` listens for page clicks.
+- `@HostBinding('class.show')` toggles a class on the host element.
+- `ElementRef` accesses the host DOM element.
+- `Renderer2` safely adds or removes the Bootstrap `show` class.
+- `effect()` synchronizes the signal state with the inner dropdown menu.
+
+## Main Data Flow
+
+```text
+Component
+   ↓ calls
+RecipeService / ShoppingListService
+   ↓ state exposed as readonly signals
+Templates update automatically
+
+Header or Route Resolver
+   ↓
+DataStorageService
+   ↓ HttpClient Observable
+Firebase Realtime Database
+   ↓ tap()
+RecipeService.setRecipes()
+```
