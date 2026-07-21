@@ -14,14 +14,19 @@ import { Router, ActivatedRoute } from '@angular/router';
 })
 export class RecipeEdit {
     //  Signal input from route parameters
-    name = input.required<string>();
+    name = input<string | undefined>();
     recipeService = inject(RecipeService);
     router = inject(Router);
     route = inject(ActivatedRoute)
 
     //  FIX 1: Turn editRecipe into a computed signal so it waits safely for the input to resolve
     editRecipe = computed(() => {
-        return this.recipeService.findRecipe(this.name());
+        const recipeName = this.name();
+        if(recipeName !== undefined && recipeName !== null){
+            return this.recipeService.findRecipe(recipeName);
+        } else {
+            return;
+        }
     });
 
     editMode = computed(() => {
@@ -110,7 +115,10 @@ export class RecipeEdit {
 
         if (this.editMode()) {
             // 💡 UPDATE OPERATION: Target the original route name parameter and pass the fresh model
-            this.recipeService.updateRecipe(this.name(), finalRecipeData);
+            const recipeName = this.name();
+            if(recipeName !== undefined && recipeName !== null){
+                this.recipeService.updateRecipe(recipeName, finalRecipeData);
+            }
             console.log('Recipe updated smoothly!');
         } else {
             // 💡 ADD OPERATION: Simply send the object off to create a new array item

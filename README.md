@@ -13,7 +13,7 @@ A modern rewrite of the Angular course **Recipe Book** project using standalone 
 
 ## Running the Project
 
-This upload contains the `src` folder. Put it inside an Angular project, then run:
+Download ZIP and extract the project folder, then run:
 
 ```bash
 npm install
@@ -71,12 +71,9 @@ provideRouter(routes, withComponentInputBinding())
 - `provideRouter(routes)` enables routing.
 - `withComponentInputBinding()` sends route parameters directly into matching component inputs.
 - `provideBrowserGlobalErrorListeners()` connects browser errors to Angular error handling.
-
-HTTP also needs to be registered here:
+- `provideHttpClient()` configures Angular’s HTTP system
 
 ```ts
-import { provideHttpClient } from '@angular/common/http';
-
 providers: [
   provideBrowserGlobalErrorListeners(),
   provideRouter(routes, withComponentInputBinding()),
@@ -117,11 +114,11 @@ recipeService = inject(RecipeService);
 A root service should use:
 
 ```ts
-@Injectable({ providedIn: 'root' })
+@Service()
+//@Service() is the morden way of wirting the Legacy @Injectable() and both do the same thing.
+//@Injectable({ providedIn: 'root' })
 export class ShoppingListService {}
 ```
-
-The current `@Service()` decorator in `shopping-list.service.ts` should be replaced with `@Injectable(...)`.
 
 ## Signals and Reactive State
 
@@ -158,7 +155,7 @@ The project also demonstrates:
 {{ recipe().name }}              <!-- Interpolation -->
 [src]="recipe().imagePath"       <!-- Property binding -->
 (click)="onDeleteRecipe()"       <!-- Event binding -->
-[(ngModel)]="name"              <!-- Two-way binding -->
+[(ngModel)]="name"               <!-- Two-way binding -->
 ```
 
 Modern template control flow is used:
@@ -166,12 +163,6 @@ Modern template control flow is used:
 ```html
 @if (editMode()) { ... }
 @for (item of items(); track $index) { ... }
-```
-
-Because `RecipeEdit` handles both `/new` and `/:name/edit`, its route input should be optional rather than required:
-
-```ts
-name = input<string | undefined>();
 ```
 
 ## Forms
@@ -187,8 +178,6 @@ name = input<string | undefined>();
 - `patchValue()` when loading an existing recipe
 
 The template connects through `[formGroup]`, `formControlName`, `formArrayName`, and `[formGroupName]`.
-
-The **Add Ingredient** button should use `type="button"` so it does not accidentally submit the form.
 
 ### Template-Driven Form — Shopping List
 
